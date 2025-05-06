@@ -52,6 +52,8 @@ cd VoiceModel
 2. Install required dependencies:
 ```bash
 pip install sounddevice numpy wave
+pip install flask==3.0.0 numpy==1.24.3 sounddevice==0.4.6 scipy==1.10.1 python-dotenv==1.0.0
+
 ```
 
 ## 💻 Usage
@@ -59,15 +61,15 @@ pip install sounddevice numpy wave
 1. Prepare your word list in `wordlist.txt` or use the provided word sources
 2. Run the recording script:
 ```bash
-python scripts/record.py
+python app.py
 ```
 3. Follow the prompts to record voice samples for each word
 
 ## 📝 Word Sources
 
 The project includes several word source files:
-- `word_sources/numbers.txt`: Numbers 1-5
-- `word_sources/small_words.txt`: Common words and phrases
+- `word_sources/numbers.txt`: Numbers 1-5 (Can be edited)
+- `word_sources/small_words.txt`: Common words and phrases (Can be edited) 
 
 ## 🤝 Contributing
 
