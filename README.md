@@ -17,7 +17,7 @@ VoiceModel is a Python-based application designed to facilitate the collection o
 ![Welcome Page](https://github.com/garvitolaniya/VoiceModel/blob/65b06d73ca9290849227a87411317311d967602f/Screenshot/Screenshot%202025-05-06%20144109.png)
 
 ### Main Recording Page
-![Main Page](Screenshot/Main%20Page%20.png)
+![Main Page](https://github.com/garvitolaniya/VoiceModel/blob/75e24b06b8fc88f4245d284e99fdd552a5a067cf/Screenshot/Screenshot%202025-05-06%20144118.png)
 
 ## 🗂️ Project Structure
 
