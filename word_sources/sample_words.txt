@@ -1,0 +1,10 @@
+hello
+world
+python
+programming
+voice
+recording
+microphone
+audio
+speech
+recognition

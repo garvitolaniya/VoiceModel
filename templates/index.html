@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recorder Pro</title>
+    <style>
+        /* Modern CSS with animations and effects */
+        :root {
+            --primary: #6C3EFF;
+            --secondary: #FFD700;
+            --accent: #23232B;
+            --background: #0A0A0F;
+            --surface: #1A1A1A;
+            --glass: #2A2A2A;
+            --text: #FFFFFF;
+            --text-light: #B8B8B8;
+            --success: #00FF9D;
+            --error: #FF3366;
+            --warning: #FFD700;
+            --glass-border: #3A3A3A;
+            --card-bg: #2A2A2A;
+            --card-hover: #3A3A3A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 20s infinite linear;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Glass Effect Card */
+        .glass-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            position: relative;
+        }
+
+        .logo-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+
+        .logo-glow {
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            filter: blur(5px);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Title Section */
+        .title-section h1 {
+            font-size: 2.5rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .title-section h2 {
+            font-size: 3rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Word Display Section */
+        .word-display {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .word-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .word-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: 10px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .prompt-text {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: var(--card-bg);
+            border-radius: 3px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .appreciation-message {
+            font-size: 1.2rem;
+            color: var(--success);
+            margin-top: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .appreciation-message.show {
+            opacity: 1;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Recording Section */
+        .recording-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .recording-status {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .recording-time {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .recording-waveform {
+            width: 100%;
+            height: 100px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waveform-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: waveform 1s ease-in-out infinite;
+        }
+
+        /* Control Buttons */
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .control-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-button {
+            background: var(--primary);
+            color: white;
+        }
+
+        .skip-button {
+            background: var(--warning);
+            color: var(--accent);
+        }
+
+        .control-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading Animation */
+        .loading-dots {
+            display: none;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            100% { transform: translateY(0) rotate(360deg); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes waveform {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background" id="particles"></div>
+    
+    <div class="container">
+        <div class="glass-card">
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-circle"></div>
+                    <div class="logo-glow"></div>
+                </div>
+                <div class="title-section">
+                    <h1>Welcome to</h1>
+                    <h2>Voice Recorder Pro</h2>
+                </div>
+            </header>
+
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRecordings">0</div>
+                    <div class="stat-label">Total Recordings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wordsRemaining">0</div>
+                    <div class="stat-label">Words Remaining</div>
+                </div>
+            </div>
+
+            <div class="word-display">
+                <div class="word-text" id="currentWord">Loading...</div>
+                <div class="prompt-text" id="currentPrompt"></div>
+                <div class="word-info">
+                    <div class="info-item">
+                        <div class="info-label">Recording Duration</div>
+                        <div class="info-value" id="recordingDuration">0s</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Recordings for this word</div>
+                        <div class="info-value" id="wordRecordings">0</div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="appreciation-message" id="appreciationMessage"></div>
+            </div>
+
+            <div class="recording-section">
+                <div class="recording-status" id="recordingStatus">Ready to record</div>
+                <div class="recording-time" id="recordingTime">00:00</div>
+                <div class="recording-waveform" id="waveform">
+                    <!-- Waveform bars will be added dynamically -->
+                </div>
+                <div class="control-buttons">
+                    <button class="control-button start-button" id="startButton">Start Recording</button>
+                    <button class="control-button skip-button" id="skipButton">Skip Word</button>
+                </div>
+                <div class="loading-dots" id="loadingDots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Create waveform visualization
+        function createWaveform() {
+            const waveform = document.getElementById('waveform');
+            for (let i = 0; i < 50; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'waveform-bar';
+                bar.style.left = (i * 8) + 'px';
+                bar.style.animationDelay = (i * 0.1) + 's';
+                waveform.appendChild(bar);
+            }
+        }
+
+        // Word and recording controls
+        const startButton = document.getElementById('startButton');
+        const skipButton = document.getElementById('skipButton');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const recordingTime = document.getElementById('recordingTime');
+        const loadingDots = document.getElementById('loadingDots');
+        const currentWord = document.getElementById('currentWord');
+        const currentPrompt = document.getElementById('currentPrompt');
+        const progressBar = document.getElementById('progressBar');
+        const appreciationMessage = document.getElementById('appreciationMessage');
+        const totalRecordings = document.getElementById('totalRecordings');
+        const wordsRemaining = document.getElementById('wordsRemaining');
+        const recordingDuration = document.getElementById('recordingDuration');
+        const wordRecordings = document.getElementById('wordRecordings');
+
+        let recordingInterval;
+        let seconds = 0;
+        let maxDuration = 0;
+
+        // Load initial word
+        async function loadCurrentWord() {
+            try {
+                const response = await fetch('/api/get_current_word');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    currentWord.textContent = data.word;
+                    currentPrompt.textContent = data.prompt;
+                    progressBar.style.width = `${data.progress}%`;
+                    wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
+                    recordingDuration.textContent = `${data.duration}s`;
+                    wordRecordings.textContent = data.recordings_count;
+                    maxDuration = data.duration;
+                }
+            } catch (error) {
+                console.error('Error loading word:', error);
+            }
+        }
+
+        function updateRecordingTime() {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            seconds++;
+            
+            // Update progress bar during recording
+            const progress = (seconds / maxDuration) * 100;
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+            
+            // If we've reached the duration, stop the interval
+            if (seconds >= maxDuration) {
+                clearInterval(recordingInterval);
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const response = await fetch('/api/start_recording', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    startButton.disabled = true;
+                    skipButton.disabled = true;
+                    recordingStatus.textContent = 'Recording...';
+                    recordingStatus.style.color = 'var(--success)';
+                    seconds = 0;
+                    maxDuration = data.duration;
+                    recordingInterval = setInterval(updateRecordingTime, 1000);
+                    loadingDots.style.display = 'flex';
+                    
+                    // Start polling for recording completion
+                    pollRecordingStatus();
+                } else {
+                    alert('Error starting recording: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error starting recording');
+            }
+        }
+
+        async function pollRecordingStatus() {
+            try {
+                const response = await fetch('/api/stop_recording', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update UI with new word
+                    currentWord.textContent = data.next_word;
+                    currentPrompt.textContent = data.next_prompt;
+                    recordingDuration.textContent = `${data.next_duration}s`;
+                    progressBar.style.width = `${data.progress}%`;
+                    wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
+                    wordRecordings.textContent = data.recordings_count;
+                    
+                    // Reset recording state
+                    startButton.disabled = false;
+                    skipButton.disabled = false;
+                    recordingStatus.textContent = 'Ready to record';
+                    recordingStatus.style.color = 'var(--text-light)';
+                    clearInterval(recordingInterval);
+                    loadingDots.style.display = 'none';
+                    seconds = 0;
+                    maxDuration = data.next_duration;
+                    recordingTime.textContent = '00:00';
+                    
+                    // Update stats
+                    totalRecordings.textContent = data.total_recordings;
+                    
+                    // Show appreciation if any
+                    if (data.appreciation) {
+                        appreciationMessage.textContent = data.appreciation;
+                        appreciationMessage.classList.add('show');
+                        setTimeout(() => {
+                            appreciationMessage.classList.remove('show');
+                        }, 5000);
+                    }
+                } else {
+                    // If recording is still in progress, poll again
+                    if (data.message === 'Not recording') {
+                        setTimeout(pollRecordingStatus, 100);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                setTimeout(pollRecordingStatus, 100);
+            }
+        }
+
+        async function skipWord() {
+            try {
+                const response = await fetch('/api/skip_word', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update to new word immediately
+                    currentWord.textContent = data.word;
+                    currentPrompt.textContent = data.prompt;
+                    recordingDuration.textContent = `${data.duration}s`;
+                    progressBar.style.width = `${data.progress}%`;
+                    wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
+                    
+                    // Reset recording state
+                    seconds = 0;
+                    maxDuration = data.duration;
+                    recordingTime.textContent = '00:00';
+                } else {
+                    alert('Error skipping word: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error skipping word');
+            }
+        }
+
+        // Event listeners
+        startButton.addEventListener('click', startRecording);
+        skipButton.addEventListener('click', skipWord);
+
+        // Initialize
+        createParticles();
+        createWaveform();
+        loadCurrentWord();
+    </script>
+</body>
+</html> 
