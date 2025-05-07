@@ -312,6 +312,54 @@
                 width: 100%;
             }
         }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: progressShine 1.5s infinite;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
     </style>
 </head>
 <body>
@@ -344,6 +392,13 @@
             <div class="word-display">
                 <div class="word-text" id="currentWord">Loading...</div>
                 <div class="prompt-text" id="currentPrompt"></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0s</span>
+                    <span id="totalTime">0s</span>
+                </div>
                 <div class="word-info">
                     <div class="info-item">
                         <div class="info-label">Recording Duration</div>
@@ -353,9 +408,6 @@
                         <div class="info-label">Recordings for this word</div>
                         <div class="info-value" id="wordRecordings">0</div>
                     </div>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
                 </div>
                 <div class="appreciation-message" id="appreciationMessage"></div>
             </div>
@@ -426,7 +478,25 @@
         let seconds = 0;
         let maxDuration = 0;
 
-        // Load initial word
+        function updateRecordingTime() {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            
+            // Update progress bar and time display
+            const progress = (seconds / maxDuration) * 100;
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+            document.getElementById('currentTime').textContent = `${seconds}s`;
+            document.getElementById('totalTime').textContent = `${maxDuration}s`;
+            
+            seconds++;
+            
+            // If we've reached the duration, stop the interval
+            if (seconds >= maxDuration) {
+                clearInterval(recordingInterval);
+            }
+        }
+
         async function loadCurrentWord() {
             try {
                 const response = await fetch('/api/get_current_word');
@@ -435,7 +505,9 @@
                 if (data.status === 'success') {
                     currentWord.textContent = data.word;
                     currentPrompt.textContent = data.prompt;
-                    progressBar.style.width = `${data.progress}%`;
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${data.duration}s`;
                     wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
                     recordingDuration.textContent = `${data.duration}s`;
                     wordRecordings.textContent = data.recordings_count;
@@ -443,22 +515,6 @@
                 }
             } catch (error) {
                 console.error('Error loading word:', error);
-            }
-        }
-
-        function updateRecordingTime() {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-            seconds++;
-            
-            // Update progress bar during recording
-            const progress = (seconds / maxDuration) * 100;
-            progressBar.style.width = `${Math.min(progress, 100)}%`;
-            
-            // If we've reached the duration, stop the interval
-            if (seconds >= maxDuration) {
-                clearInterval(recordingInterval);
             }
         }
 
@@ -476,6 +532,9 @@
                     recordingStatus.style.color = 'var(--success)';
                     seconds = 0;
                     maxDuration = data.duration;
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
                     recordingInterval = setInterval(updateRecordingTime, 1000);
                     loadingDots.style.display = 'flex';
                     
@@ -502,7 +561,6 @@
                     currentWord.textContent = data.next_word;
                     currentPrompt.textContent = data.next_prompt;
                     recordingDuration.textContent = `${data.next_duration}s`;
-                    progressBar.style.width = `${data.progress}%`;
                     wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
                     wordRecordings.textContent = data.recordings_count;
                     
@@ -516,6 +574,9 @@
                     seconds = 0;
                     maxDuration = data.next_duration;
                     recordingTime.textContent = '00:00';
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
                     
                     // Update stats
                     totalRecordings.textContent = data.total_recordings;
@@ -554,13 +615,15 @@
                     currentWord.textContent = data.word;
                     currentPrompt.textContent = data.prompt;
                     recordingDuration.textContent = `${data.duration}s`;
-                    progressBar.style.width = `${data.progress}%`;
                     wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
                     
                     // Reset recording state
                     seconds = 0;
                     maxDuration = data.duration;
                     recordingTime.textContent = '00:00';
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
                 } else {
                     alert('Error skipping word: ' + data.message);
                 }
