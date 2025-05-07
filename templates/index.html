@@ -327,7 +327,7 @@
             height: 100%;
             background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
             border-radius: 4px;
-            transition: width 0.3s ease;
+            transition: width 0.1s linear;
             position: relative;
             overflow: hidden;
         }
@@ -483,13 +483,13 @@
             const remainingSeconds = seconds % 60;
             recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             
-            // Update progress bar and time display
+            // Update progress bar and time display with smoother increments
             const progress = (seconds / maxDuration) * 100;
             progressBar.style.width = `${Math.min(progress, 100)}%`;
             document.getElementById('currentTime').textContent = `${seconds}s`;
             document.getElementById('totalTime').textContent = `${maxDuration}s`;
             
-            seconds++;
+            seconds += 0.1; // Increment by 0.1 for smoother progress
             
             // If we've reached the duration, stop the interval
             if (seconds >= maxDuration) {
@@ -532,10 +532,14 @@
                     recordingStatus.style.color = 'var(--success)';
                     seconds = 0;
                     maxDuration = data.duration;
+                    
+                    // Initialize progress bar immediately
                     progressBar.style.width = '0%';
                     document.getElementById('currentTime').textContent = '0s';
                     document.getElementById('totalTime').textContent = `${maxDuration}s`;
-                    recordingInterval = setInterval(updateRecordingTime, 1000);
+                    
+                    // Start the interval with higher frequency for smoother updates
+                    recordingInterval = setInterval(updateRecordingTime, 100); // Update every 100ms
                     loadingDots.style.display = 'flex';
                     
                     // Start polling for recording completion
