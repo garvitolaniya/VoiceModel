@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Model - Landing Page</title>
+    <style>
+        :root {
+            --primary: #7B2CBF;
+            --secondary: #9D4EDD;
+            --accent: #10002B;
+            --background: #0A0A0F;
+            --surface: #1A1A1A;
+            --glass: #2A2A2A;
+            --text: #FFFFFF;
+            --text-light: #B8B8B8;
+            --success: #00FF9D;
+            --error: #FF3366;
+            --warning: #FFD700;
+            --gradient-start: #7B2CBF;
+            --gradient-end: #9D4EDD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0A0A0F 100%);
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            25% { transform: translateY(-100px) translateX(100px) rotate(90deg); }
+            50% { transform: translateY(-200px) translateX(0) rotate(180deg); }
+            75% { transform: translateY(-100px) translateX(-100px) rotate(270deg); }
+            100% { transform: translateY(0) translateX(0) rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            z-index: 1;
+            margin: 40px auto;
+        }
+
+        .glass-card {
+            background: rgba(42, 42, 42, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(123, 44, 191, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .header {
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .logo-circle {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            animation: rotate 10s linear infinite;
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(123, 44, 191, 0.4) 0%, rgba(123, 44, 191, 0) 70%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(123, 44, 191, 0.3);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .description {
+            font-size: 1.2em;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.8;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-container {
+            margin-top: 60px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 45px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(123, 44, 191, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(123, 44, 191, 0.4);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(42, 42, 42, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: left;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(123, 44, 191, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--text);
+            font-weight: bold;
+        }
+
+        .feature-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            margin: 60px 0 40px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .how-it-works {
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .step-card {
+            background: rgba(42, 42, 42, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text);
+            font-size: 1.2em;
+        }
+
+        .step-icon {
+            font-size: 2.5em;
+            margin: 20px 0;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--text);
+            font-weight: bold;
+        }
+
+        .step-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2em;
+                margin: 40px 0 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background" id="particles"></div>
+    
+    <div class="container">
+        <div class="glass-card">
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-circle"></div>
+                    <div class="logo-glow"></div>
+                </div>
+                <h1>Voice Model</h1>
+                <h2>Shape the Future of Voice AI</h2>
+            </header>
+
+            <p class="description">
+                Join our mission to revolutionize voice technology! By contributing your voice recordings, 
+                you're helping build the next generation of AI-powered voice recognition systems. 
+                Our platform makes it easy and engaging to record words and phrases that will train 
+                advanced AI models. Be part of something bigger - help us create technology that 
+                understands everyone's voice perfectly!
+            </p>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🎙️</div>
+                    <h3 class="feature-title">Easy Recording</h3>
+                    <p class="feature-description">
+                        One-click recording with automatic word progression. Clear instructions and 
+                        real-time feedback make the process smooth and enjoyable.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Progress Tracking</h3>
+                    <p class="feature-description">
+                        Watch your impact grow with detailed statistics and visual progress tracking. 
+                        See how your contributions help build better AI.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h3 class="feature-title">Engaging Experience</h3>
+                    <p class="feature-description">
+                        Enjoy a gamified experience with achievements, encouraging messages, and 
+                        a supportive community of contributors.
+                    </p>
+                </div>
+            </div>
+
+            <div class="how-it-works">
+                <h2 class="section-title">How It Works</h2>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">🎯</div>
+                        <h3 class="step-title">Select Words</h3>
+                        <p class="step-description">
+                            Choose from our curated list of words and phrases that need voice recordings. 
+                            Each word is carefully selected to improve voice recognition accuracy.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">🎙️</div>
+                        <h3 class="step-title">Record Your Voice</h3>
+                        <p class="step-description">
+                            Use your device's microphone to record each word clearly. Our system provides 
+                            real-time feedback and allows you to re-record if needed.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🔍</div>
+                        <h3 class="step-title">Quality Check</h3>
+                        <p class="step-description">
+                            Our AI automatically verifies the quality of your recordings, ensuring they 
+                            meet the standards needed for training voice models.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">🤖</div>
+                        <h3 class="step-title">AI Training</h3>
+                        <p class="step-description">
+                            Your recordings are used to train advanced voice recognition models, helping 
+                            create more accurate and inclusive voice technology.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-container">
+                <a href="/voice-model" class="cta-button">Start Contributing</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 5 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize
+        createParticles();
+    </script>
+</body>
+</html> 
