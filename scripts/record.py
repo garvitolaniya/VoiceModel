@@ -103,15 +103,15 @@ class VoiceRecorder:
         if self.current_word_index >= len(words):
             self.current_word_index = 0
             random.shuffle(words)
-        
+
         current_word = words[self.current_word_index]
         prompt = random.choice(prompts)
         duration = get_dynamic_duration(current_word)
-        
+
         # Create folder for the word
         word_folder = os.path.join(self.recordings_root, current_word)
         os.makedirs(word_folder, exist_ok=True)
-        
+
         return {
             'word': current_word,
             'prompt': prompt,
@@ -170,15 +170,15 @@ class VoiceRecorder:
             )
             
             # Wait for exact duration
-            sd.wait()
-            
+        sd.wait()
+
             # Save the recording
-            filename = os.path.join(word_folder, f"{next_index}.wav")
-            with wave.open(filename, 'wb') as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)
+        filename = os.path.join(word_folder, f"{next_index}.wav")
+        with wave.open(filename, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
                 wf.setframerate(self.sample_rate)
-                wf.writeframes(audio.tobytes())
+            wf.writeframes(audio.tobytes())
 
             self.last_recorded_filename = filename
             self.recording_count += 1
@@ -201,7 +201,7 @@ class VoiceRecorder:
                 appreciation = random.choice(appreciations)
                 self.recording_count = 0
                 self.next_appreciation_at = random.randint(5, 8)
-            
+
             return {
                 'status': 'success',
                 'message': 'Recording completed',
@@ -222,8 +222,8 @@ class VoiceRecorder:
         self.current_word_index += 1
         if self.current_word_index >= len(words):
             self.current_word_index = 0
-            random.shuffle(words)
-        
+random.shuffle(words)
+
         current_word = words[self.current_word_index]
         duration = get_dynamic_duration(current_word)
         prompt = random.choice(prompts)
@@ -243,7 +243,7 @@ class VoiceRecorderApp:
         self.root.title("Voice Recorder Pro")
         self.root.geometry("800x600")
         self.root.configure(bg=COLORS['background'])
-        
+
         self.current_word_index = 0
         self.is_recording = False
         self.recording_start_time = 0
@@ -290,14 +290,14 @@ class VoiceRecorderApp:
             bg=COLORS['background'], fg=COLORS['text_light']
         )
         self.status_label.pack(pady=(0, 20))
-        
+
         # Stats label
         self.stats_label = tk.Label(
             main_frame, text="Recordings: 0", font=('Arial', 12),
             bg=COLORS['background'], fg=COLORS['text_light']
         )
         self.stats_label.pack(pady=(0, 20))
-        
+
         # Appreciation label
         self.appreciation_label = tk.Label(
             main_frame, text="", font=('Arial', 12),
@@ -402,9 +402,9 @@ class VoiceRecorderApp:
         self.record_button.config(state="normal")
         self.retry_button.config(state="normal")
         self.skip_button.config(state="normal")
-        
+
         self.status_label.config(text=f"✅ Saved: {os.path.basename(self.last_recorded_filename)}", fg=COLORS['success'])
-        
+
         if self.recording_count >= self.next_appreciation_at:
             appreciation_message = random.choice(appreciations)
             messagebox.showinfo("👏 Appreciation", appreciation_message)
@@ -433,6 +433,6 @@ class VoiceRecorderApp:
             self.status_label.config(text="❌ No recording to retry.", fg=COLORS['error'])
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = VoiceRecorderApp(root)
-    root.mainloop()
+root = tk.Tk()
+app = VoiceRecorderApp(root)
+root.mainloop()

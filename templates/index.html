@@ -327,9 +327,10 @@
             height: 100%;
             background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
             border-radius: 4px;
-            transition: width 0.3s ease;
+            transition: width 0.1s linear;
             position: relative;
             overflow: hidden;
+            width: 0%;
         }
 
         .progress-bar::after {
@@ -345,7 +346,7 @@
                 rgba(255, 255, 255, 0.2),
                 transparent
             );
-            animation: progressShine 1.5s infinite;
+            animation: progressShine 1s infinite linear;
         }
 
         .time-display {
@@ -483,9 +484,11 @@
             const remainingSeconds = seconds % 60;
             recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             
-            // Update progress bar and time display immediately
+            // Update progress bar with smoother animation
             const progress = (seconds / maxDuration) * 100;
-            progressBar.style.width = `${Math.min(progress, 100)}%`;
+            requestAnimationFrame(() => {
+                progressBar.style.width = `${Math.min(progress, 100)}%`;
+            });
             document.getElementById('currentTime').textContent = `${seconds}s`;
             document.getElementById('totalTime').textContent = `${maxDuration}s`;
             
@@ -533,13 +536,15 @@
                     seconds = 0;
                     maxDuration = data.duration;
                     
-                    // Initialize progress bar immediately
-                    progressBar.style.width = '0%';
+                    // Initialize progress bar with smooth transition
+                    requestAnimationFrame(() => {
+                        progressBar.style.width = '0%';
+                    });
                     document.getElementById('currentTime').textContent = '0s';
                     document.getElementById('totalTime').textContent = `${maxDuration}s`;
                     
-                    // Start the interval immediately
-                    recordingInterval = setInterval(updateRecordingTime, 1000);
+                    // Start the interval with more frequent updates
+                    recordingInterval = setInterval(updateRecordingTime, 50);
                     loadingDots.style.display = 'flex';
                     
                     // Start polling for recording completion
