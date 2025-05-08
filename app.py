@@ -135,62 +135,8 @@ def start_recording():
 
 @app.route('/api/stop_recording', methods=['POST'])
 def stop_recording():
-    try:
-        if 'audio' not in request.files:
-            return jsonify({'status': 'error', 'message': 'No audio file received'})
-        
-        audio_file = request.files['audio']
-        if audio_file.filename == '':
-            return jsonify({'status': 'error', 'message': 'No selected file'})
-        
-        # Get current word and create folder
-        current_word = recorder.get_current_word()['word']
-        word_folder = os.path.join(recorder.recordings_root, current_word)
-        os.makedirs(word_folder, exist_ok=True)
-        
-        # Save the audio file
-        next_index = recorder.get_next_recording_index(current_word)
-        filename = os.path.join(word_folder, f"{next_index}.wav")
-        audio_file.save(filename)
-        
-        # Update recorder state
-        recorder.last_recorded_filename = filename
-        recorder.recording_count += 1
-        recorder.total_recordings += 1
-        
-        # Move to next word
-        recorder.current_word_index += 1
-        if recorder.current_word_index >= len(words):
-            recorder.current_word_index = 0
-            random.shuffle(words)
-        
-        # Get next word info
-        next_word = words[recorder.current_word_index]
-        next_duration = get_dynamic_duration(next_word)
-        next_prompt = random.choice(prompts)
-        
-        # Check if it's time for appreciation
-        appreciation = None
-        if recorder.recording_count >= recorder.next_appreciation_at:
-            appreciation = random.choice(appreciations)
-            recorder.recording_count = 0
-            recorder.next_appreciation_at = random.randint(5, 8)
-        
-        return jsonify({
-            'status': 'success',
-            'message': 'Recording completed',
-            'file': filename,
-            'appreciation': appreciation,
-            'total_recordings': recorder.total_recordings,
-            'next_word': next_word,
-            'next_duration': next_duration,
-            'next_prompt': next_prompt,
-            'progress': (recorder.current_word_index / len(words)) * 100,
-            'recordings_count': recorder.get_next_recording_index(next_word) - 1
-        })
-        
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
+    result = recorder.stop_recording()
+    return jsonify(result)
 
 @app.route('/api/skip_word', methods=['POST'])
 def skip_word():

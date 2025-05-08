@@ -327,7 +327,7 @@
             height: 100%;
             background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
             border-radius: 4px;
-            transition: width 0.1s linear;
+            transition: width 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -432,141 +432,6 @@
     </div>
 
     <script>
-        // Audio recording variables
-        let mediaRecorder;
-        let audioChunks = [];
-        let isRecording = false;
-        let recordingStartTime;
-        let recordingDurationMs = 0;  // Renamed to avoid conflict
-
-        // Initialize audio recording
-        async function initializeRecording() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                
-                mediaRecorder.ondataavailable = (event) => {
-                    audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                    await sendRecordingToServer(audioBlob);
-                    audioChunks = [];
-                };
-
-            } catch (error) {
-                console.error('Error accessing microphone:', error);
-                alert('Error accessing microphone. Please ensure you have granted microphone permissions.');
-            }
-        }
-
-        // Send recording to server
-        async function sendRecordingToServer(audioBlob) {
-            try {
-                const formData = new FormData();
-                formData.append('audio', audioBlob, 'recording.wav');
-
-                const response = await fetch('/api/stop_recording', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    // Update UI with new word
-                    currentWord.textContent = data.next_word;
-                    currentPrompt.textContent = data.next_prompt;
-                    recordingDuration.textContent = `${data.next_duration}s`;
-                    wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
-                    wordRecordings.textContent = data.recordings_count;
-                    
-                    // Reset recording state
-                    startButton.disabled = false;
-                    skipButton.disabled = false;
-                    recordingStatus.textContent = 'Ready to record';
-                    recordingStatus.style.color = 'var(--text-light)';
-                    clearInterval(recordingInterval);
-                    loadingDots.style.display = 'none';
-                    seconds = 0;
-                    maxDuration = data.next_duration;
-                    recordingTime.textContent = '00:00';
-                    progressBar.style.width = '0%';
-                    document.getElementById('currentTime').textContent = '0s';
-                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
-                    
-                    // Update stats
-                    totalRecordings.textContent = data.total_recordings;
-                    
-                    // Show appreciation if any
-                    if (data.appreciation) {
-                        appreciationMessage.textContent = data.appreciation;
-                        appreciationMessage.classList.add('show');
-                        setTimeout(() => {
-                            appreciationMessage.classList.remove('show');
-                        }, 5000);
-                    }
-                }
-            } catch (error) {
-                console.error('Error sending recording:', error);
-                alert('Error sending recording to server');
-            }
-        }
-
-        // Modified startRecording function
-        async function startRecording() {
-            try {
-                const response = await fetch('/api/start_recording', {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    startButton.disabled = true;
-                    skipButton.disabled = true;
-                    recordingStatus.textContent = 'Recording...';
-                    recordingStatus.style.color = 'var(--success)';
-                    seconds = 0;
-                    maxDuration = data.duration;
-                    
-                    // Initialize progress bar immediately
-                    progressBar.style.width = '0%';
-                    document.getElementById('currentTime').textContent = '0s';
-                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
-                    
-                    // Start recording
-                    audioChunks = [];
-                    mediaRecorder.start();
-                    isRecording = true;
-                    recordingStartTime = Date.now();
-                    
-                    // Start the interval with higher frequency for smoother updates
-                    recordingInterval = setInterval(updateRecordingTime, 100);
-                    loadingDots.style.display = 'flex';
-                    
-                    // Set timeout to stop recording after duration
-                    setTimeout(() => {
-                        if (isRecording) {
-                            stopRecording();
-                        }
-                    }, maxDuration * 1000);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error starting recording');
-            }
-        }
-
-        // Stop recording function
-        function stopRecording() {
-            if (isRecording && mediaRecorder) {
-                mediaRecorder.stop();
-                isRecording = false;
-                clearInterval(recordingInterval);
-            }
-        }
-
         // Create floating particles
         function createParticles() {
             const container = document.getElementById('particles');
@@ -618,13 +483,13 @@
             const remainingSeconds = seconds % 60;
             recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             
-            // Update progress bar and time display with smoother increments
+            // Update progress bar and time display immediately
             const progress = (seconds / maxDuration) * 100;
             progressBar.style.width = `${Math.min(progress, 100)}%`;
             document.getElementById('currentTime').textContent = `${seconds}s`;
             document.getElementById('totalTime').textContent = `${maxDuration}s`;
             
-            seconds += 0.1; // Increment by 0.1 for smoother progress
+            seconds++;
             
             // If we've reached the duration, stop the interval
             if (seconds >= maxDuration) {
@@ -650,6 +515,95 @@
                 }
             } catch (error) {
                 console.error('Error loading word:', error);
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const response = await fetch('/api/start_recording', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    startButton.disabled = true;
+                    skipButton.disabled = true;
+                    recordingStatus.textContent = 'Recording...';
+                    recordingStatus.style.color = 'var(--success)';
+                    seconds = 0;
+                    maxDuration = data.duration;
+                    
+                    // Initialize progress bar immediately
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
+                    
+                    // Start the interval immediately
+                    recordingInterval = setInterval(updateRecordingTime, 1000);
+                    loadingDots.style.display = 'flex';
+                    
+                    // Start polling for recording completion
+                    pollRecordingStatus();
+                } else {
+                    alert('Error starting recording: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error starting recording');
+            }
+        }
+
+        async function pollRecordingStatus() {
+            try {
+                const response = await fetch('/api/stop_recording', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update UI with new word
+                    currentWord.textContent = data.next_word;
+                    currentPrompt.textContent = data.next_prompt;
+                    recordingDuration.textContent = `${data.next_duration}s`;
+                    wordsRemaining.textContent = Math.round((1 - data.progress/100) * 100);
+                    wordRecordings.textContent = data.recordings_count;
+                    
+                    // Reset recording state
+                    startButton.disabled = false;
+                    skipButton.disabled = false;
+                    recordingStatus.textContent = 'Ready to record';
+                    recordingStatus.style.color = 'var(--text-light)';
+                    clearInterval(recordingInterval);
+                    loadingDots.style.display = 'none';
+                    seconds = 0;
+                    maxDuration = data.next_duration;
+                    recordingTime.textContent = '00:00';
+                    progressBar.style.width = '0%';
+                    document.getElementById('currentTime').textContent = '0s';
+                    document.getElementById('totalTime').textContent = `${maxDuration}s`;
+                    
+                    // Update stats
+                    totalRecordings.textContent = data.total_recordings;
+                    
+                    // Show appreciation if any
+                    if (data.appreciation) {
+                        appreciationMessage.textContent = data.appreciation;
+                        appreciationMessage.classList.add('show');
+                        setTimeout(() => {
+                            appreciationMessage.classList.remove('show');
+                        }, 5000);
+                    }
+                } else {
+                    // If recording is still in progress, poll again
+                    if (data.message === 'Not recording') {
+                        setTimeout(pollRecordingStatus, 100);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                setTimeout(pollRecordingStatus, 100);
             }
         }
 
@@ -688,7 +642,6 @@
         skipButton.addEventListener('click', skipWord);
 
         // Initialize
-        initializeRecording();
         createParticles();
         createWaveform();
         loadCurrentWord();
