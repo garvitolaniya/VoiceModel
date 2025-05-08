@@ -1,3 +1,23 @@
 chai
 coffee
 ganne ka juice
+run
+open
+save
+file
+edit
+stop
+play
+next
+done
+move
+send
+exit
+time
+back
+name
+load
+list
+log
+read
+call
